@@ -133,6 +133,35 @@
       60% { transform: translate(-2px, -2px); }
       80% { transform: translate(2px, 2px); }
     }
+
+    /* Screen shake on Wispr Flow lightning wipe */
+    .shake-lg {
+      animation: screenShakeLg 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    @keyframes screenShakeLg {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-8px, 6px) rotate(-1.5deg); }
+      30% { transform: translate(7px, -6px) rotate(1.5deg); }
+      45% { transform: translate(-6px, -4px) rotate(-1deg); }
+      60% { transform: translate(5px, 5px) rotate(0.8deg); }
+      75% { transform: translate(-3px, 2px) rotate(-0.5deg); }
+      90% { transform: translate(2px, -1px) rotate(0.2deg); }
+    }
+
+    /* Electric Overdrive Pulse for Wispr Flow */
+    @keyframes electricPulse {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(0, 242, 255, 0.8), 0 0 45px rgba(176, 38, 255, 0.5), inset 0 0 15px rgba(0, 242, 255, 0.4);
+        border-color: #00f2ff;
+      }
+      50% {
+        box-shadow: 0 0 35px rgba(176, 38, 255, 0.9), 0 0 65px rgba(0, 242, 255, 0.7), inset 0 0 25px rgba(176, 38, 255, 0.6);
+        border-color: #ff007f;
+      }
+    }
+    .electric-ready {
+      animation: electricPulse 1.2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen crt-grid flex flex-col items-center justify-between p-3 sm:p-6 relative overflow-x-hidden font-tech selection:bg-brand-cyan selection:text-slate-950">
@@ -144,6 +173,9 @@
   <div class="fixed top-[-100px] left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-brand-cyan/10 blur-[130px] rounded-full pointer-events-none"></div>
   <div class="fixed bottom-[-100px] right-[-100px] w-[500px] h-[400px] bg-brand-magenta/10 blur-[140px] rounded-full pointer-events-none"></div>
   <div class="fixed bottom-[-100px] left-[-100px] w-[450px] h-[350px] bg-brand-purple/10 blur-[130px] rounded-full pointer-events-none"></div>
+
+  <!-- Lightning Screen Wipe Flash Overlay -->
+  <div id="lightningFlash" class="fixed inset-0 pointer-events-none z-50 bg-cyan-100 opacity-0 transition-opacity duration-150"></div>
 
   <!-- Particle / Splat Canvas Overlay -->
   <canvas id="fxCanvas" class="fixed inset-0 pointer-events-none z-30"></canvas>
@@ -254,6 +286,56 @@
         </div>
       </div>
     </section>
+
+    <!-- ========================================== -->
+    <!-- 2.5 WISPR FLOW VOICE POWER BUTTON & METER  -->
+    <!-- ========================================== -->
+    <div class="w-full max-w-lg">
+      <button id="wisprFlowBtn" disabled class="w-full relative group rounded-2xl bg-slate-900/90 border-2 border-indigo-500/40 p-2.5 sm:p-3 overflow-hidden transition-all duration-300 disabled:opacity-75 disabled:cursor-not-allowed">
+        <!-- Progress bar background fill -->
+        <div id="flowProgressBg" class="absolute inset-0 bg-gradient-to-r from-indigo-700 via-purple-600 to-brand-cyan opacity-25 w-[0%] transition-all duration-200 ease-out"></div>
+
+        <!-- Electric Shimmer Glow Overlay -->
+        <div id="flowPulseGlow" class="absolute inset-0 bg-gradient-to-r from-brand-cyan/20 via-brand-purple/20 to-brand-cyan/20 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center justify-between gap-2.5">
+          <!-- Left: Flow Brand & Icon -->
+          <div class="flex items-center gap-2.5">
+            <div id="flowIconBox" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-950/90 border border-indigo-500/50 flex items-center justify-center text-lg sm:text-xl shadow-inner transition-transform group-hover:scale-105">
+              🎙️
+            </div>
+            <div class="text-left font-mono">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-xs sm:text-sm font-extrabold text-white font-tech tracking-wider flex items-center gap-1">
+                  WISPR FLOW™
+                </span>
+                <span id="flowBadge" class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-indigo-900/80 text-indigo-300 border border-indigo-500/40">
+                  VOICE METER
+                </span>
+              </div>
+              <p id="flowStatusText" class="text-[10px] text-slate-400 mt-0.5">
+                SQUASH BUGS TO CHARGE VOICE OVERDRIVE
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Charge % / Ready Prompt -->
+          <div class="text-right font-mono flex flex-col items-end">
+            <div id="flowPercent" class="text-sm sm:text-base font-extrabold font-tech text-indigo-300 tracking-wider">
+              0%
+            </div>
+            <span id="flowTriggerKey" class="text-[9px] text-slate-500 font-bold bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/80 mt-0.5">
+              KEY: [V]
+            </span>
+          </div>
+        </div>
+
+        <!-- Energy Indicator Micro-Track along bottom edge -->
+        <div class="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800/90">
+          <div id="flowEnergyBar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-brand-cyan w-[0%] transition-all duration-200 ease-out shadow-[0_0_10px_rgba(0,242,255,0.7)]"></div>
+        </div>
+      </button>
+    </div>
 
     <!-- ========================================== -->
     <!-- 3. 3x3 PLAY GRID WITH NEON HOTSPOTS        -->
@@ -414,6 +496,13 @@
           </div>
           <span class="text-red-400 font-bold">-200 &amp; BREAKS COMBO</span>
         </div>
+        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-indigo-300">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🎙️</span>
+            <span class="font-bold">Wispr Flow™ Wipe</span>
+          </div>
+          <span class="font-bold text-brand-cyan">LIGHTNING SCREEN WIPE [V]</span>
+        </div>
       </div>
 
       <!-- Start Button -->
@@ -453,37 +542,175 @@
           ★ NEW PERSONAL RECORD! ★
         </div>
 
-        <div class="grid grid-cols-3 gap-2 pt-3 mt-2 border-t border-slate-800/80 text-xs text-left">
+        <div class="grid grid-cols-4 gap-2 pt-3 mt-2 border-t border-slate-800/80 text-xs text-left">
           <div>
-            <div class="text-slate-500 text-[10px]">BUGS SMASHED</div>
-            <div id="finalSmashedCount" class="font-bold text-white text-base">0</div>
+            <div class="text-slate-500 text-[9px] truncate">SMASHED</div>
+            <div id="finalSmashedCount" class="font-bold text-white text-sm sm:text-base">0</div>
           </div>
           <div>
-            <div class="text-slate-500 text-[10px]">MAX COMBO</div>
-            <div id="finalMaxCombo" class="font-bold text-brand-magenta text-base">0x</div>
+            <div class="text-slate-500 text-[9px] truncate">MAX COMBO</div>
+            <div id="finalMaxCombo" class="font-bold text-brand-magenta text-sm sm:text-base">0x</div>
           </div>
           <div>
-            <div class="text-slate-500 text-[10px]">ACCURACY</div>
-            <div id="finalAccuracy" class="font-bold text-brand-lime text-base">0%</div>
+            <div class="text-slate-500 text-[9px] truncate">ACCURACY</div>
+            <div id="finalAccuracy" class="font-bold text-brand-lime text-sm sm:text-base">0%</div>
+          </div>
+          <div>
+            <div class="text-slate-500 text-[9px] truncate">FLOW WIPES</div>
+            <div id="finalLightningWipes" class="font-bold text-brand-cyan text-sm sm:text-base">0</div>
           </div>
         </div>
       </div>
 
-      <!-- Developer Title / Rank -->
-      <div class="mt-3 p-2.5 rounded-lg bg-slate-800/60 border border-slate-700/80 text-xs font-mono">
-        <span class="text-slate-400">AWARDED ON-CALL TITLE:</span>
-        <div id="finalRankTitle" class="text-brand-amber font-extrabold text-sm mt-0.5">
-          10x Bug Exterminator
+      <!-- Developer Title / Rank Calculation Display -->
+      <div class="mt-3 p-3 rounded-xl bg-slate-950/90 border border-slate-800 text-xs font-mono text-left relative overflow-hidden">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400 text-[10px]">AWARDED ON-CALL RANK:</span>
+          <span id="finalRankTierBadge" class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase bg-amber-400/20 text-amber-300 border border-amber-400/50">
+            S+ TIER
+          </span>
         </div>
+        <div id="finalRankTitle" class="text-brand-amber font-extrabold text-sm sm:text-base mt-1 flex items-center gap-1.5">
+          10x Mythical Goat of Goa
+        </div>
+        <p id="finalRankDesc" class="text-[10px] text-slate-400 mt-1 leading-snug">
+          Dictated 5,000 lines of Rust via Wispr Flow with a coconut in hand. Outage resolved before morning!
+        </p>
+        <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[9px] text-slate-500">
+          <span id="finalPercentile" class="text-brand-cyan">Top 0.1% Mythical Engineer</span>
+          <span class="text-brand-lime">● SEV-1 DEFUSED</span>
+        </div>
+      </div>
+
+      <!-- Clickable VIP Golden Ticket Button: Hacker House Goa -->
+      <div class="mt-3.5">
+        <button id="vipGoldenTicketBtn" class="w-full relative group rounded-2xl bg-gradient-to-r from-amber-500/25 via-yellow-500/30 to-amber-600/25 border-2 border-amber-400 p-3 sm:p-3.5 text-left shadow-[0_0_25px_rgba(245,158,11,0.45)] hover:shadow-[0_0_40px_rgba(245,158,11,0.8)] hover:border-amber-300 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
+          <!-- Animated Golden Foil Shimmer -->
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none"></div>
+
+          <div class="flex items-center justify-between gap-3 relative z-10">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 text-slate-950 flex items-center justify-center text-xl font-bold shadow-md group-hover:rotate-6 transition-transform">
+                🎫
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs sm:text-sm font-extrabold text-amber-300 font-tech tracking-wider neon-text-amber">
+                    VIP GOLDEN TICKET
+                  </span>
+                  <span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 uppercase">
+                    GOA 2026
+                  </span>
+                </div>
+                <p class="text-[10px] text-amber-200/90 font-mono mt-0.5">
+                  🌴 HACKER HOUSE GOA // ALL-EXPENSES PAID RETREAT
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-end">
+              <span class="text-[10px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span>CLAIM</span> ➔
+              </span>
+              <span class="text-[8px] text-amber-300/70 font-mono mt-0.5">
+                CLICK TO OPEN
+              </span>
+            </div>
+          </div>
+        </button>
       </div>
 
       <!-- Play Again & Share -->
-      <div class="mt-5 flex flex-col sm:flex-row gap-2.5">
+      <div class="mt-4 flex flex-col sm:flex-row gap-2.5">
         <button id="playAgainBtn" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-magenta to-brand-cyan text-slate-950 font-extrabold font-tech tracking-wider uppercase shadow-neon-magenta hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all">
           HOTFIX AGAIN [SPACE]
         </button>
         <button id="shareScoreBtn" class="py-3 px-4 rounded-xl bg-slate-800 border border-slate-700 hover:border-brand-cyan text-slate-200 font-mono text-xs hover:text-white transition-all">
           📋 COPY STATS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 4: VIP GOLDEN TICKET GOA MODAL       -->
+  <!-- ========================================== -->
+  <div id="ticketModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden">
+    <div class="w-full max-w-md bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-400 rounded-3xl p-6 sm:p-7 shadow-[0_0_50px_rgba(245,158,11,0.5)] relative text-center font-mono overflow-hidden">
+      <!-- Ambient Gold Glow Backing -->
+      <div class="absolute -top-16 -left-16 w-40 h-40 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-16 -right-16 w-40 h-40 bg-yellow-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Close Button -->
+      <button id="closeTicketBtn" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-sm z-20">✕</button>
+
+      <!-- Ticket Header Badge -->
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/60 text-amber-300 text-xs font-bold tracking-widest uppercase mb-3">
+        🌴 HACKER HOUSE GOA // ADMIT ONE
+      </div>
+
+      <!-- Ticket Main Card Pass -->
+      <div class="rounded-2xl bg-gradient-to-br from-amber-500/10 via-slate-950 to-amber-950/20 border border-amber-400/40 p-5 text-left relative overflow-hidden shadow-inner">
+        <!-- Golden Foil Corner Accent -->
+        <div class="absolute top-0 right-0 border-t-[32px] border-r-[32px] border-t-amber-400 border-r-transparent"></div>
+
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-[10px] text-amber-400/80 font-bold tracking-widest uppercase">OFFICIAL VIP INVITATION</div>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-white font-tech tracking-wider text-amber-200 mt-0.5">
+              HACKER HOUSE GOA
+            </h3>
+          </div>
+          <span class="text-2xl">🥥</span>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-dashed border-amber-400/30 grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="text-[9px] text-slate-400">SURVIVOR HANDLE</div>
+            <div id="ticketDevName" class="font-bold text-white truncate font-tech">@3AM_CHAMPION</div>
+          </div>
+          <div>
+            <div class="text-[9px] text-slate-400">BOARDING PASS #</div>
+            <div id="ticketSerial" class="font-bold text-amber-300 font-mono">GOA-WISPR-7702</div>
+          </div>
+          <div>
+            <div class="text-[9px] text-slate-400">AWARDED RANK</div>
+            <div id="ticketRank" class="font-bold text-brand-lime truncate text-[11px]">10x Mythical Goat</div>
+          </div>
+          <div>
+            <div class="text-[9px] text-slate-400">LOCATION &amp; DATES</div>
+            <div class="font-bold text-slate-200 text-[11px]">Anjuna, Goa // Dec 2026</div>
+          </div>
+        </div>
+
+        <!-- Perks list -->
+        <div class="mt-4 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[10px] text-slate-300 space-y-1">
+          <div class="flex items-center gap-1.5 text-amber-300 font-bold">
+            <span>✨</span> INCLUDED RETREAT AMENITIES:
+          </div>
+          <p>🏊 Private Beachfront Villa &amp; Infinity Pool Co-working</p>
+          <p>⚡ 10 Gbps Starlink Fiber + Wispr AI Flow Voice Lab</p>
+          <p>☕ Unlimited Single-Origin Espresso &amp; Fresh Tender Coconuts</p>
+        </div>
+
+        <!-- Simulated Barcode -->
+        <div class="mt-4 pt-3 border-t border-dashed border-amber-400/30 flex items-center justify-between">
+          <div class="font-mono text-[9px] tracking-[6px] text-amber-400/60 font-bold">
+            ||| | |||| | || ||||| | ||| || |||
+          </div>
+          <div class="text-[9px] text-slate-500 font-mono">
+            SEV-1 OUTAGE CLEARED
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-5 flex flex-col sm:flex-row gap-2.5">
+        <button id="copyTicketBtn" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-extrabold font-tech tracking-wider uppercase shadow-[0_0_20px_rgba(245,158,11,0.5)] hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all">
+          📋 COPY VIP INVITE CODE
+        </button>
+        <button id="closeTicketBtn2" class="py-3 px-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-mono text-xs transition-all">
+          CLOSE
         </button>
       </div>
     </div>
@@ -515,8 +742,13 @@
           Never hit the <span class="text-red-400">💣 Force Push</span> bomb or your combo gets wiped and score deducted!
         </p>
         <p>
-          <strong class="text-slate-400">4. SHORTCUTS:</strong>
+          <strong class="text-indigo-400">4. WISPR FLOW™ VOICE POWER:</strong>
+          Squashing bugs fuels your Voice Overdrive meter. When full (100%), hit the button or press <span class="text-white bg-slate-800 px-1 py-0.5 rounded border border-slate-700 font-bold">V</span> to trigger a full-screen <strong class="text-brand-cyan">Lightning Screen Wipe</strong> that instantly eliminates all active bugs for massive bonus points!
+        </p>
+        <p>
+          <strong class="text-slate-400">5. SHORTCUTS:</strong>
           <span class="text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">Space</span>: Start / Restart,
+          <span class="text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">V</span> / <span class="text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">F</span>: Wispr Flow Wipe,
           <span class="text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">M</span>: Mute SFX,
           <span class="text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">R</span>: Reset.
         </p>
@@ -599,50 +831,155 @@
         osc.stop(now + 0.2);
       }
 
-      playCoffee() {
+      playBugSplat() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+
+        // 1. Pitch drop squelch
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.11);
+
+        gain.gain.setValueAtTime(0.42, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.11);
+
+        // 2. Organic low-pass noise splat
+        try {
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.08);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.02));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(520, now);
+          filter.Q.setValueAtTime(4.0, now);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.38, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(now);
+        } catch (e) {}
+      }
+
+      playCoffeeChimes() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        // Crystalline harmonic bell chime (C6, E6, G6, C7)
+        const freqs = [1046.50, 1318.51, 1567.98, 2093.00];
+        freqs.forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          const t = now + idx * 0.06;
+          const t = now + idx * 0.045;
 
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, t);
 
-          gain.gain.setValueAtTime(0.2, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+          gain.gain.setValueAtTime(0.24, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-
           osc.start(t);
-          osc.stop(t + 0.12);
+          osc.stop(t + 0.35);
         });
       }
 
-      playBomb() {
+      playSlackBuzzer() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
+
+        // 1. Two-tone woodblock knock-brush (440Hz -> 660Hz)
+        [440, 660].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const t = now + idx * 0.09;
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t);
+
+          gain.gain.setValueAtTime(0.32, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.07);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.07);
+        });
+
+        // 2. Urgent harsh SEV-1 workspace buzzer
+        const buzz = this.ctx.createOscillator();
+        const buzzGain = this.ctx.createGain();
+        buzz.type = 'sawtooth';
+        buzz.frequency.setValueAtTime(165, now + 0.18);
+        buzz.frequency.linearRampToValueAtTime(115, now + 0.38);
+
+        buzzGain.gain.setValueAtTime(0.35, now + 0.18);
+        buzzGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+        buzz.connect(buzzGain);
+        buzzGain.connect(this.ctx.destination);
+        buzz.start(now + 0.18);
+        buzz.stop(now + 0.4);
+      }
+
+      playVoiceLaser() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // Futuristic sci-fi voice laser beam sweep
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
 
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.linearRampToValueAtTime(45, now + 0.25);
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(2600, now + 0.09);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.28);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1800, now);
+        filter.Q.setValueAtTime(5.0, now);
 
         gain.gain.setValueAtTime(0.45, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
 
-        osc.connect(gain);
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(this.ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.28);
+        osc.stop(now + 0.3);
+      }
+
+      playCoffee() {
+        this.playCoffeeChimes();
+      }
+
+      playBomb() {
+        this.playSlackBuzzer();
       }
 
       playMiss() {
@@ -713,6 +1050,92 @@
           osc.stop(t + 0.15);
         });
       }
+
+      playLightningWipe() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // 1. High voltage electrical zap
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(75, now + 0.35);
+
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.38);
+
+        // 2. Thunder sub-bass rumble
+        const subOsc = this.ctx.createOscillator();
+        const subGain = this.ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(140, now + 0.04);
+        subOsc.frequency.exponentialRampToValueAtTime(32, now + 0.6);
+
+        subGain.gain.setValueAtTime(0.55, now + 0.04);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+
+        subOsc.connect(subGain);
+        subGain.connect(this.ctx.destination);
+        subOsc.start(now + 0.04);
+        subOsc.stop(now + 0.65);
+
+        // 3. Synthesized static crackle
+        try {
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.4);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.1));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1400, now);
+          filter.frequency.exponentialRampToValueAtTime(180, now + 0.38);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.35, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(now);
+        } catch (e) {}
+      }
+
+      playFlowReady() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const t = now + idx * 0.06;
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t);
+
+          gain.gain.setValueAtTime(0.28, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(t);
+          osc.stop(t + 0.18);
+        });
+      }
     }
 
     const audio = new ArcadeAudio();
@@ -725,9 +1148,58 @@
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
+        this.lightningBolts = [];
+        this.confetti = [];
         this.resize();
         window.addEventListener('resize', () => this.resize());
         this.loop();
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      triggerConfetti(count = 90) {
+        const colors = ['#ffd700', '#00f2ff', '#ff007f', '#39ff14', '#b026ff', '#ffffff', '#f59e0b'];
+        for (let i = 0; i < count; i++) {
+          const x = Math.random() * this.canvas.width;
+          const y = -10 - Math.random() * 60;
+          this.confetti.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 5,
+            vy: Math.random() * 4 + 2,
+            sizeW: Math.random() * 8 + 6,
+            sizeH: Math.random() * 5 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * Math.PI * 2,
+            vRotation: (Math.random() - 0.5) * 0.15,
+            alpha: 1,
+            decay: Math.random() * 0.005 + 0.003,
+          });
+        }
+      }
+
+      burstConfetti(originX, originY, count = 75) {
+        const colors = ['#ffd700', '#00f2ff', '#ff007f', '#39ff14', '#b026ff', '#ffffff', '#f59e0b'];
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 9 + 4;
+          this.confetti.push({
+            x: originX,
+            y: originY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 4,
+            sizeW: Math.random() * 8 + 5,
+            sizeH: Math.random() * 5 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * Math.PI * 2,
+            vRotation: (Math.random() - 0.5) * 0.2,
+            alpha: 1,
+            decay: Math.random() * 0.008 + 0.005,
+          });
+        }
       }
 
       resize() {
@@ -752,8 +1224,106 @@
         }
       }
 
+      triggerLightningWipe(targets, sourcePoint) {
+        const startX = sourcePoint ? sourcePoint.x : this.canvas.width / 2;
+        const startY = sourcePoint ? sourcePoint.y : 100;
+
+        targets.forEach((target) => {
+          this.createLightningBranch(startX, startY, target.x, target.y);
+          this.burst(target.x, target.y, '#00f2ff', 20);
+          this.burst(target.x, target.y, '#b026ff', 12);
+          this.burst(target.x, target.y, '#ffffff', 10);
+        });
+      }
+
+      createLightningBranch(x1, y1, x2, y2, depth = 1) {
+        const segments = [];
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const steps = Math.max(6, Math.floor(dist / 26));
+
+        let prevX = x1;
+        let prevY = y1;
+        segments.push({ x: prevX, y: prevY });
+
+        for (let i = 1; i <= steps; i++) {
+          const progress = i / steps;
+          const targetX = x1 + dx * progress;
+          const targetY = y1 + dy * progress;
+          const jitter = (1 - Math.abs(progress - 0.5) * 1.4) * 32;
+          const offsetX = (Math.random() - 0.5) * jitter;
+          const offsetY = (Math.random() - 0.5) * jitter;
+
+          const curX = i === steps ? x2 : targetX + offsetX;
+          const curY = i === steps ? y2 : targetY + offsetY;
+          segments.push({ x: curX, y: curY });
+          prevX = curX;
+          prevY = curY;
+        }
+
+        this.lightningBolts.push({
+          segments: segments,
+          alpha: 1.0,
+          color: '#00f2ff',
+          coreColor: '#ffffff',
+          lineWidth: 3.5,
+          decay: 0.065,
+        });
+
+        if (depth > 0 && Math.random() > 0.35) {
+          const mid = segments[Math.floor(segments.length / 2)];
+          if (mid) {
+            const bx = mid.x + (Math.random() - 0.5) * 80;
+            const by = mid.y + Math.random() * 60;
+            this.createLightningBranch(mid.x, mid.y, bx, by, depth - 1);
+          }
+        }
+      }
+
       loop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 1. Draw lightning bolts
+        for (let i = this.lightningBolts.length - 1; i >= 0; i--) {
+          const bolt = this.lightningBolts[i];
+          bolt.alpha -= bolt.decay;
+          if (bolt.alpha <= 0) {
+            this.lightningBolts.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.globalAlpha = bolt.alpha;
+
+          // Outer Glow
+          this.ctx.strokeStyle = bolt.color;
+          this.ctx.shadowBlur = 18;
+          this.ctx.shadowColor = bolt.color;
+          this.ctx.lineWidth = bolt.lineWidth + 2.5;
+          this.ctx.beginPath();
+          bolt.segments.forEach((pt, idx) => {
+            if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
+            else this.ctx.lineTo(pt.x, pt.y);
+          });
+          this.ctx.stroke();
+
+          // Bright Core
+          this.ctx.strokeStyle = bolt.coreColor;
+          this.ctx.shadowBlur = 6;
+          this.ctx.shadowColor = '#ffffff';
+          this.ctx.lineWidth = bolt.lineWidth * 0.6;
+          this.ctx.beginPath();
+          bolt.segments.forEach((pt, idx) => {
+            if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
+            else this.ctx.lineTo(pt.x, pt.y);
+          });
+          this.ctx.stroke();
+
+          this.ctx.restore();
+        }
+
+        // 2. Draw particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const p = this.particles[i];
           p.x += p.vx;
@@ -776,6 +1346,33 @@
           this.ctx.fill();
           this.ctx.restore();
         }
+
+        // 3. Draw confetti
+        for (let i = this.confetti.length - 1; i >= 0; i--) {
+          const c = this.confetti[i];
+          c.x += c.vx;
+          c.y += c.vy;
+          c.vy += 0.08;
+          c.vx *= 0.985;
+          c.rotation += c.vRotation;
+          c.alpha -= c.decay;
+
+          if (c.alpha <= 0 || c.y > this.canvas.height + 40) {
+            this.confetti.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.globalAlpha = Math.max(0, c.alpha);
+          this.ctx.translate(c.x, c.y);
+          this.ctx.rotate(c.rotation);
+          this.ctx.fillStyle = c.color;
+          this.ctx.shadowBlur = 4;
+          this.ctx.shadowColor = c.color;
+          this.ctx.fillRect(-c.sizeW / 2, -c.sizeH / 2, c.sizeW, c.sizeH);
+          this.ctx.restore();
+        }
+
         requestAnimationFrame(() => this.loop());
       }
     }
@@ -858,6 +1455,12 @@
         this.isPlaying = false;
         this.highScore = parseInt(localStorage.getItem('bugsmasher_high_score') || '0', 10);
 
+        // Wispr Flow Voice Power State
+        this.flowCharge = 0;
+        this.flowMax = 100;
+        this.isFlowReady = false;
+        this.lightningWipesUsed = 0;
+
         // Grid state: 9 slots
         this.slots = Array(9).fill(null);
         this.slotTimers = Array(9).fill(null);
@@ -881,6 +1484,18 @@
           hotspots: Array.from(document.querySelectorAll('.hotspot')),
           gameArea: document.getElementById('gameGridContainer'),
 
+          // Wispr Flow Elements
+          wisprFlowBtn: document.getElementById('wisprFlowBtn'),
+          flowProgressBg: document.getElementById('flowProgressBg'),
+          flowPulseGlow: document.getElementById('flowPulseGlow'),
+          flowIconBox: document.getElementById('flowIconBox'),
+          flowBadge: document.getElementById('flowBadge'),
+          flowStatusText: document.getElementById('flowStatusText'),
+          flowPercent: document.getElementById('flowPercent'),
+          flowEnergyBar: document.getElementById('flowEnergyBar'),
+          flowTriggerKey: document.getElementById('flowTriggerKey'),
+          lightningFlash: document.getElementById('lightningFlash'),
+
           // Modals
           startModal: document.getElementById('startModal'),
           gameOverModal: document.getElementById('gameOverModal'),
@@ -901,9 +1516,23 @@
           finalSmashedCount: document.getElementById('finalSmashedCount'),
           finalMaxCombo: document.getElementById('finalMaxCombo'),
           finalAccuracy: document.getElementById('finalAccuracy'),
+          finalLightningWipes: document.getElementById('finalLightningWipes'),
           finalRankTitle: document.getElementById('finalRankTitle'),
+          finalRankTierBadge: document.getElementById('finalRankTierBadge'),
+          finalRankDesc: document.getElementById('finalRankDesc'),
+          finalPercentile: document.getElementById('finalPercentile'),
           newHighScoreBadge: document.getElementById('newHighScoreBadge'),
           gameOverEmoji: document.getElementById('gameOverEmoji'),
+
+          // VIP Golden Ticket Elements
+          vipGoldenTicketBtn: document.getElementById('vipGoldenTicketBtn'),
+          ticketModal: document.getElementById('ticketModal'),
+          closeTicketBtn: document.getElementById('closeTicketBtn'),
+          closeTicketBtn2: document.getElementById('closeTicketBtn2'),
+          copyTicketBtn: document.getElementById('copyTicketBtn'),
+          ticketDevName: document.getElementById('ticketDevName'),
+          ticketSerial: document.getElementById('ticketSerial'),
+          ticketRank: document.getElementById('ticketRank'),
         };
 
         this.init();
@@ -924,6 +1553,19 @@
           if (e.target.closest('.hotspot-target-active')) return;
           this.handleMissClick(e);
         });
+
+        // Wispr Flow Trigger
+        this.dom.wisprFlowBtn.addEventListener('click', () => this.triggerWisprFlowWipe());
+
+        // VIP Golden Ticket Handlers
+        this.dom.vipGoldenTicketBtn.addEventListener('click', (e) => this.openGoldenTicket(e));
+        this.dom.closeTicketBtn.addEventListener('click', () => {
+          this.dom.ticketModal.classList.add('hidden');
+        });
+        this.dom.closeTicketBtn2.addEventListener('click', () => {
+          this.dom.ticketModal.classList.add('hidden');
+        });
+        this.dom.copyTicketBtn.addEventListener('click', () => this.copyTicketInvite());
 
         // Start / Replay Buttons
         this.dom.startGameBtn.addEventListener('click', () => this.startGame());
@@ -954,6 +1596,8 @@
               e.preventDefault();
               this.startGame();
             }
+          } else if (e.key === 'v' || e.key === 'V' || e.key === 'f' || e.key === 'F') {
+            this.triggerWisprFlowWipe();
           } else if (e.key === 'r' || e.key === 'R') {
             this.restartGame();
           } else if (e.key === 'm' || e.key === 'M') {
@@ -983,11 +1627,15 @@
         this.maxCombo = 0;
         this.totalClicks = 0;
         this.totalHits = 0;
+        this.flowCharge = 0;
+        this.isFlowReady = false;
+        this.lightningWipesUsed = 0;
         this.timeRemaining = this.GAME_DURATION;
         this.isPlaying = true;
 
         this.clearAllSlots();
         this.updateHUD();
+        this.updateFlowUI();
 
         // Run game timer (updates every 100ms)
         const startTime = Date.now();
@@ -1004,6 +1652,8 @@
             this.timeRemaining = 0;
             this.endGame();
           }
+          // Passive Voice Flow Energy buildup
+          this.addFlowCharge(0.35);
           this.updateHUD();
         }, 100);
 
@@ -1165,7 +1815,7 @@
           // TRAP!
           pointsEarned = entity.points; // Negative points
           this.combo = 0; // Combo wiped!
-          audio.playBomb();
+          audio.playSlackBuzzer();
           particles.burst(x, y, '#ef4444', 24);
           this.triggerScreenShake();
           this.showFloatingPopup(x, y, `${pointsEarned} FORCE PUSH!`, '#ef4444');
@@ -1174,9 +1824,10 @@
           this.combo++;
           pointsEarned = Math.round(entity.points * multiplier);
           this.timeRemaining = Math.min(this.GAME_DURATION, this.timeRemaining + entity.bonusTime);
-          audio.playCoffee();
+          audio.playCoffeeChimes();
           particles.burst(x, y, '#ffb703', 20);
           this.showFloatingPopup(x, y, `+${pointsEarned} & +2s ☕`, '#ffb703');
+          this.addFlowCharge(25);
         } else {
           // BUG / CRITICAL BUG
           this.combo++;
@@ -1184,13 +1835,16 @@
 
           if (entity.type === 'crit') {
             audio.playCritHit();
+            audio.playBugSplat();
             particles.burst(x, y, '#ff007f', 22);
             this.showFloatingPopup(x, y, `+${pointsEarned} CRIT!`, '#ff007f');
+            this.addFlowCharge(22);
           } else {
-            audio.playWhack();
+            audio.playBugSplat();
             particles.burst(x, y, '#00f2ff', 16);
             const comboText = multiplier > 1 ? ` (x${multiplier})` : '';
             this.showFloatingPopup(x, y, `+${pointsEarned}${comboText}`, '#00f2ff');
+            this.addFlowCharge(14);
           }
         }
 
@@ -1203,6 +1857,138 @@
 
         // Despawn the whacked entity
         this.despawnSlot(index);
+        this.updateHUD();
+      }
+
+      addFlowCharge(amount) {
+        if (!this.isPlaying) return;
+        if (this.isFlowReady) return;
+
+        this.flowCharge = Math.min(this.flowMax, this.flowCharge + amount);
+        if (this.flowCharge >= this.flowMax && !this.isFlowReady) {
+          this.isFlowReady = true;
+          this.flowCharge = this.flowMax;
+          audio.playFlowReady();
+          const rect = this.dom.wisprFlowBtn.getBoundingClientRect();
+          particles.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, '#00f2ff', 24);
+          particles.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, '#b026ff', 24);
+        }
+        this.updateFlowUI();
+      }
+
+      updateFlowUI() {
+        const pct = Math.round((this.flowCharge / this.flowMax) * 100);
+        this.dom.flowEnergyBar.style.width = `${pct}%`;
+        this.dom.flowProgressBg.style.width = `${pct}%`;
+
+        if (this.isFlowReady) {
+          this.dom.wisprFlowBtn.disabled = false;
+          this.dom.wisprFlowBtn.classList.remove('disabled:opacity-75', 'border-indigo-500/40');
+          this.dom.wisprFlowBtn.classList.add('electric-ready', 'border-brand-cyan', 'cursor-pointer');
+          this.dom.flowPulseGlow.style.opacity = '1';
+          this.dom.flowPercent.textContent = 'READY!';
+          this.dom.flowPercent.className = 'text-sm sm:text-base font-extrabold font-tech text-brand-cyan neon-text-cyan animate-pulse';
+          this.dom.flowStatusText.innerHTML = '⚡ <strong class="text-white">FLOW OVERDRIVE READY!</strong> CLICK OR PRESS [V] TO WIPE!';
+          this.dom.flowBadge.textContent = '⚡ 100% OVERDRIVE';
+          this.dom.flowBadge.className = 'text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider bg-brand-cyan text-slate-950 animate-bounce';
+          this.dom.flowIconBox.innerHTML = '⚡';
+          this.dom.flowIconBox.className = 'w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-cyan/20 border-2 border-brand-cyan flex items-center justify-center text-lg sm:text-xl shadow-neon-cyan animate-pulse text-brand-cyan';
+        } else {
+          this.dom.wisprFlowBtn.disabled = true;
+          this.dom.wisprFlowBtn.classList.remove('electric-ready', 'border-brand-cyan', 'cursor-pointer');
+          this.dom.wisprFlowBtn.classList.add('border-indigo-500/40');
+          this.dom.flowPulseGlow.style.opacity = '0';
+          this.dom.flowPercent.textContent = `${pct}%`;
+          this.dom.flowPercent.className = 'text-sm sm:text-base font-extrabold font-tech text-indigo-300 tracking-wider';
+          this.dom.flowStatusText.textContent = 'SQUASH BUGS TO CHARGE VOICE OVERDRIVE';
+          this.dom.flowBadge.textContent = 'VOICE METER';
+          this.dom.flowBadge.className = 'text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-indigo-900/80 text-indigo-300 border border-indigo-500/40';
+          this.dom.flowIconBox.innerHTML = '🎙️';
+          this.dom.flowIconBox.className = 'w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-950/90 border border-indigo-500/50 flex items-center justify-center text-lg sm:text-xl shadow-inner transition-transform group-hover:scale-105';
+        }
+      }
+
+      triggerWisprFlowWipe() {
+        if (!this.isPlaying) return;
+        if (!this.isFlowReady) return;
+
+        this.isFlowReady = false;
+        this.flowCharge = 0;
+        this.lightningWipesUsed++;
+        this.updateFlowUI();
+
+        // 1. Audio: Futuristic voice laser sweep + thunderous electrical wipe
+        audio.playVoiceLaser();
+        setTimeout(() => audio.playLightningWipe(), 90);
+
+        // 2. Full-Screen Lightning Flash overlay
+        this.dom.lightningFlash.classList.remove('opacity-0');
+        this.dom.lightningFlash.classList.add('opacity-90');
+        setTimeout(() => {
+          this.dom.lightningFlash.classList.remove('opacity-90');
+          this.dom.lightningFlash.classList.add('opacity-0');
+        }, 160);
+
+        // 3. Screen Shake
+        this.dom.gameArea.classList.add('shake-lg');
+        setTimeout(() => {
+          this.dom.gameArea.classList.remove('shake-lg');
+        }, 450);
+
+        // 4. Procedural Lightning Strikes on Canvas
+        const sourceRect = this.dom.wisprFlowBtn.getBoundingClientRect();
+        const sourcePoint = {
+          x: sourceRect.left + sourceRect.width / 2,
+          y: sourceRect.top + sourceRect.height / 2,
+        };
+        const targets = this.dom.hotspots.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        });
+        particles.triggerLightningWipe(targets, sourcePoint);
+
+        // 5. Annihilate active entities across all 9 server ports
+        let bugsWipedCount = 0;
+        for (let i = 0; i < 9; i++) {
+          const entity = this.slots[i];
+          const target = targets[i];
+
+          if (entity) {
+            if (entity.type === 'coffee') {
+              this.score += 300;
+              this.timeRemaining = Math.min(this.GAME_DURATION, this.timeRemaining + 2.0);
+              this.showFloatingPopup(target.x, target.y, '+300 & +2s ☕', '#ffb703');
+            } else if (entity.type === 'bomb') {
+              this.showFloatingPopup(target.x, target.y, 'DEFUSED 🛡️', '#38bdf8');
+            } else {
+              bugsWipedCount++;
+              this.combo++;
+              this.totalHits++;
+              let multiplier = 1.0;
+              if (this.combo >= 15) multiplier = 3.0;
+              else if (this.combo >= 10) multiplier = 2.0;
+              else if (this.combo >= 5) multiplier = 1.5;
+
+              const pts = Math.round((entity.points + 150) * multiplier);
+              this.score += pts;
+              this.showFloatingPopup(target.x, target.y, `⚡ +${pts}!`, '#00f2ff');
+            }
+            this.despawnSlot(i);
+          }
+        }
+
+        if (this.combo > this.maxCombo) {
+          this.maxCombo = this.combo;
+        }
+
+        // Floating central announcement banner
+        this.showFloatingPopup(
+          sourcePoint.x,
+          sourcePoint.y - 20,
+          `⚡ WISPR FLOW WIPED ${bugsWipedCount} BUGS!`,
+          '#00f2ff'
+        );
+
         this.updateHUD();
       }
 
@@ -1293,6 +2079,54 @@
         }
       }
 
+      calculateDeveloperRank() {
+        const accuracy = this.totalClicks > 0
+          ? Math.round((this.totalHits / this.totalClicks) * 100)
+          : 0;
+
+        // Composite Performance Index calculation
+        const perfScore = this.score + (this.maxCombo * 60) + (this.lightningWipesUsed * 400) + (accuracy * 25);
+
+        let rankId = 'C';
+        let title = 'Junior Bootcamper (Spilled Chai)';
+        let emoji = '🍼💻';
+        let badgeColor = 'bg-slate-700/60 text-slate-300 border-slate-600';
+        let description = 'Survived the 3AM outage! A bit shaky on the git cherry-picks, but the prod server is still breathing.';
+        let percentile = 'Top 70% of On-Call Responders';
+
+        if (perfScore >= 7200 || this.score >= 5800) {
+          rankId = 'S+';
+          title = '10x Mythical Goat of Goa';
+          emoji = '🐐👑';
+          badgeColor = 'bg-amber-400/25 text-amber-300 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]';
+          description = 'Dictated 5,000 lines of Rust via Wispr Flow with a coconut in hand. Outage resolved before morning standup!';
+          percentile = 'Top 0.1% Mythical Engineer';
+        } else if (perfScore >= 5000 || this.score >= 4000) {
+          rankId = 'S';
+          title = 'Principal 3AM Firefighter';
+          emoji = '🚒⚡';
+          badgeColor = 'bg-brand-cyan/25 text-brand-cyan border-brand-cyan shadow-neon-cyan';
+          description = 'Averted us-east-1 cataclysm in the dead of night. The incident commander wept tears of pure relief.';
+          percentile = 'Top 3% Emergency Responder';
+        } else if (perfScore >= 3200 || this.score >= 2600) {
+          rankId = 'A';
+          title = 'Senior Staff Hotfix Exterminator';
+          emoji = '⚔️🔥';
+          badgeColor = 'bg-brand-magenta/25 text-brand-magenta border-brand-magenta shadow-neon-magenta';
+          description = 'Smashed memory leaks with laser precision strikes. Never broke a sweat or missed a single espresso sip.';
+          percentile = 'Top 15% Veteran Fixer';
+        } else if (perfScore >= 1800 || this.score >= 1400) {
+          rankId = 'B';
+          title = 'Mid-Level YAML Whisperer';
+          emoji = '📜☕';
+          badgeColor = 'bg-emerald-400/25 text-emerald-300 border-emerald-400';
+          description = 'Guessed the Kubernetes port on the second try. Kept the system latency within acceptable limits.';
+          percentile = 'Top 45% Stable Contributor';
+        }
+
+        return { rankId, title, emoji, badgeColor, description, percentile, accuracy };
+      }
+
       endGame() {
         this.isPlaying = false;
         clearInterval(this.gameInterval);
@@ -1310,35 +2144,22 @@
           isNewHigh = true;
         }
 
-        // Compute Accuracy
-        const accuracy = this.totalClicks > 0
-          ? Math.round((this.totalHits / this.totalClicks) * 100)
-          : 0;
-
-        // Determine title
-        let rankTitle = 'Junior Intern (Coffee Spilled)';
-        let rankEmoji = '🍼';
-        if (this.score >= 7000) {
-          rankTitle = 'God-Tier Principal Architect';
-          rankEmoji = '👑';
-        } else if (this.score >= 5000) {
-          rankTitle = 'Staff Hotfix Exterminator';
-          rankEmoji = '⚡';
-        } else if (this.score >= 3200) {
-          rankTitle = 'Senior 3AM On-Call Warrior';
-          rankEmoji = '⚔️';
-        } else if (this.score >= 1800) {
-          rankTitle = 'Full-Stack Bug Sweeper';
-          rankEmoji = '🧹';
-        }
+        // Comprehensive Rank Calculation
+        const rankInfo = this.calculateDeveloperRank();
+        this.currentRankInfo = rankInfo;
 
         // Populate Game Over Modal
         this.dom.finalScoreDisplay.textContent = this.score.toString().padStart(5, '0');
         this.dom.finalSmashedCount.textContent = this.totalHits;
         this.dom.finalMaxCombo.textContent = `${this.maxCombo}x`;
-        this.dom.finalAccuracy.textContent = `${accuracy}%`;
-        this.dom.finalRankTitle.textContent = rankTitle;
-        this.dom.gameOverEmoji.textContent = rankEmoji;
+        this.dom.finalAccuracy.textContent = `${rankInfo.accuracy}%`;
+        this.dom.finalLightningWipes.textContent = this.lightningWipesUsed;
+        this.dom.finalRankTitle.textContent = rankInfo.title;
+        this.dom.gameOverEmoji.textContent = rankInfo.emoji;
+        this.dom.finalRankDesc.textContent = rankInfo.description;
+        this.dom.finalPercentile.textContent = rankInfo.percentile;
+        this.dom.finalRankTierBadge.textContent = `${rankInfo.rankId} TIER`;
+        this.dom.finalRankTierBadge.className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase border ${rankInfo.badgeColor}`;
 
         if (isNewHigh && this.score > 0) {
           this.dom.newHighScoreBadge.classList.remove('hidden');
@@ -1346,14 +2167,62 @@
           this.dom.newHighScoreBadge.classList.add('hidden');
         }
 
+        // Confetti explosion on game over!
+        particles.triggerConfetti(85);
+        if (isNewHigh || rankInfo.rankId === 'S+' || rankInfo.rankId === 'S') {
+          setTimeout(() => particles.triggerConfetti(110), 380);
+        }
+
         // Show Modal
         this.dom.gameOverModal.classList.remove('hidden');
       }
 
+      openGoldenTicket(event) {
+        audio.init();
+        audio.playCoffeeChimes();
+        const rect = this.dom.vipGoldenTicketBtn.getBoundingClientRect();
+        const clickX = event.clientX || (rect.left + rect.width / 2);
+        const clickY = event.clientY || (rect.top + rect.height / 2);
+
+        // Massive golden confetti explosion!
+        particles.burstConfetti(clickX, clickY, 85);
+        particles.triggerConfetti(65);
+
+        // Populate Ticket Pass
+        const serialNum = `GOA-WISPR-${Math.floor(1000 + Math.random() * 9000)}`;
+        this.currentTicketCode = `WISPR-GOA-2026-${serialNum}-DEV`;
+        this.dom.ticketSerial.textContent = serialNum;
+        if (this.currentRankInfo) {
+          this.dom.ticketRank.textContent = this.currentRankInfo.title;
+        }
+
+        this.dom.ticketModal.classList.remove('hidden');
+      }
+
+      copyTicketInvite() {
+        const text = `🌴 VIP GOLDEN TICKET: HACKER HOUSE GOA\n` +
+          `🎫 Pass ID: ${this.dom.ticketSerial.textContent}\n` +
+          `🏆 Rank: ${this.dom.ticketRank.textContent} (${this.score.toLocaleString()} PTS)\n` +
+          `📍 Anjuna Beach, Goa // Dec 2026\n` +
+          `Claim Code: ${this.currentTicketCode || 'WISPR-GOA-2026-VIP'}`;
+
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(() => {
+            const original = this.dom.copyTicketBtn.textContent;
+            this.dom.copyTicketBtn.textContent = '✅ INVITE CODE COPIED!';
+            setTimeout(() => {
+              this.dom.copyTicketBtn.textContent = original;
+            }, 2000);
+          });
+        }
+      }
+
       shareScore() {
+        const rankText = this.currentRankInfo ? this.currentRankInfo.title : this.dom.finalRankTitle.textContent;
         const text = `👾 I scored ${this.score.toLocaleString()} PTS in 3AM Bugsmasher!\n` +
           `💥 Smashed ${this.totalHits} bugs | Max Combo: ${this.maxCombo}x\n` +
-          `Title: ${this.dom.finalRankTitle.textContent}\n` +
+          `⚡ Wispr Flow Lightning Wipes: ${this.lightningWipesUsed}\n` +
+          `🏆 Awarded Title: ${rankText}\n` +
           `Can you survive the 3AM hotfix shift?`;
 
         if (navigator.clipboard) {
