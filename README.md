@@ -12,12 +12,19 @@
 
 ## 🚀 Co-Created with Antigravity × Wispr Flow
 
-This project was built from concept to production through the combined superpowers of **Antigravity** and **Wispr Flow**:
+This project was built from concept to production through the combined superpowers of **Antigravity** and **Wispr Flow** — in a fully **voice-driven development session**:
 
-- **🤖 Google DeepMind Antigravity**: Served as the agentic AI pairing partner — architecting the single-file modular codebase, implementing real-time Web Audio API signal synthesis (oscillators, biquad filters, procedural noise buffers), constructing dynamic canvas particle physics, configuring cyberpunk Tailwind styling, and tuning the game balance mechanics.
-- **🎙️ Wispr Flow**: Inspired the core voice-first superpower theme and enabled frictionless, rapid thought-to-code execution. In the game, Wispr Flow is embodied as the ultimate on-call ability: the **Voice Overdrive Lightning Screen Wipe**, allowing engineers to dictate lightning-fast hotfixes and clear catastrophic server errors in a single utterance.
+- **🎙️ Wispr Flow (Voice-Driven Prompting)**: Every single prompt, design direction, feature request, and iteration in this project was **spoken aloud and dictated via Wispr Flow**. There was no keyboard typing of instructions — Wispr Flow transcribed the developer's voice in real-time into precise, structured prompts that were sent directly to Antigravity. This is voice-driven development at its most literal: describing a game concept, a new UI feature, or a specific sound effect out loud, and watching Antigravity build it immediately.
+- **🤖 Google DeepMind Antigravity**: Served as the agentic AI pairing partner receiving those voice-dictated prompts — architecting the single-file modular codebase, implementing real-time Web Audio API signal synthesis (oscillators, biquad filters, procedural noise buffers), constructing dynamic canvas particle physics, configuring cyberpunk Tailwind styling, and tuning the game balance mechanics, all from spoken natural language alone.
 
-Together, they demonstrate the modern workflow of agentic engineering: combining ultra-fast voice ideation with autonomous code architecture to craft a polished, zero-dependency arcade web application.
+### 🗣️ The Voice-Driven Development Workflow
+
+```
+Developer speaks  ──►  Wispr Flow transcribes  ──►  Antigravity receives prompt  ──►  Code ships
+  (no keyboard)          in real-time                 & builds the feature           immediately
+```
+
+This project is a living proof-of-concept for **fully hands-free software creation**: an idea spoken into the air becomes a production-ready, playable arcade game — without the developer writing a single line of code or a single typed word. The game's own **Wispr Flow™ Voice Overdrive** mechanic is a direct homage to this workflow: one voice command to clear the entire server rack of bugs, just as one spoken sentence to Antigravity delivers an entire feature.
 
 ---
 
